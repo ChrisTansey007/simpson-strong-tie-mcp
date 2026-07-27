@@ -2,12 +2,11 @@
 
 import logging
 import sys
-
 import structlog
 
 
 def configure_logging(log_level: str = "INFO", json_format: bool = False) -> None:
-    """Configure structlog for application logging."""
+    """Configure structlog for application logging (writing to stderr to preserve stdout for JSON-RPC)."""
     level = getattr(logging, log_level.upper(), logging.INFO)
 
     shared_processors: list[structlog.types.Processor] = [
@@ -20,7 +19,7 @@ def configure_logging(log_level: str = "INFO", json_format: bool = False) -> Non
     if json_format:
         renderer = structlog.processors.JSONRenderer()
     else:
-        renderer = structlog.dev.ConsoleRenderer(colors=sys.stdout.isatty())
+        renderer = structlog.dev.ConsoleRenderer(colors=sys.stderr.isatty())
 
     structlog.configure(
         processors=[
@@ -30,7 +29,7 @@ def configure_logging(log_level: str = "INFO", json_format: bool = False) -> Non
         ],
         wrapper_class=structlog.make_filtering_bound_logger(level),
         context_class=dict,
-        logger_factory=structlog.PrintLoggerFactory(),
+        logger_factory=structlog.PrintLoggerFactory(file=sys.stderr),
         cache_logger_on_first_use=True,
     )
 
