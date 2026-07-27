@@ -2,6 +2,7 @@
 
 import asyncio
 import json
+
 from simpson_mcp.main import (
     check_corrosion_compatibility,
     check_fastener_substitution,
@@ -65,7 +66,9 @@ async def main():
 
     # 8. Fastener Substitution Tool (Approved substitution)
     fastener_approved = await check_fastener_substitution("10d_common", "SD9")
-    print("\n[8] Fastener Substitution Tool - Approved (`check_fastener_substitution('10d_common', 'SD9')`):")
+    print(
+        "\n[8] Fastener Substitution Tool - Approved (`check_fastener_substitution('10d_common', 'SD9')`):"
+    )
     print(json.dumps(fastener_approved, indent=2))
 
     # 9. Corrosion Compatibility Tool (Coastal SS316 check)
