@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import ReviewQueue from './components/ReviewQueue';
 
 interface HealthResponse {
   status: string;
@@ -54,32 +55,36 @@ export default function App() {
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-xl">
-          <div className="text-xs uppercase tracking-wider font-semibold text-slate-400">Admin API Status</div>
-          <div className="text-3xl font-bold mt-2 text-slate-100">
-            {healthLoading ? '...' : healthError ? 'Offline' : 'Healthy'}
+      <main className="max-w-6xl mx-auto mt-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-xl">
+            <div className="text-xs uppercase tracking-wider font-semibold text-slate-400">Admin API Status</div>
+            <div className="text-3xl font-bold mt-2 text-slate-100">
+              {healthLoading ? '...' : healthError ? 'Offline' : 'Healthy'}
+            </div>
+            <p className="text-xs text-slate-500 mt-2 font-mono">Version: {health?.version || '0.1.0'}</p>
           </div>
-          <p className="text-xs text-slate-500 mt-2 font-mono">Version: {health?.version || '0.1.0'}</p>
+
+          <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-xl">
+            <div className="text-xs uppercase tracking-wider font-semibold text-slate-400">PostgreSQL + pgvector</div>
+            <div className="text-3xl font-bold mt-2 text-slate-100">
+              {ready?.database_connected ? (
+                <span className="text-emerald-400">Connected</span>
+              ) : (
+                <span className="text-amber-400">Standby / Unreachable</span>
+              )}
+            </div>
+            <p className="text-xs text-slate-500 mt-2 font-mono">Extension: vector & pg_trgm</p>
+          </div>
+
+          <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-xl">
+            <div className="text-xs uppercase tracking-wider font-semibold text-slate-400">MCP Server Foundation</div>
+            <div className="text-3xl font-bold mt-2 text-emerald-400">Ready</div>
+            <p className="text-xs text-slate-500 mt-2 font-mono">SDK Constraint: mcp &gt;= 1.27, &lt; 2</p>
+          </div>
         </div>
 
-        <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-xl">
-          <div className="text-xs uppercase tracking-wider font-semibold text-slate-400">PostgreSQL + pgvector</div>
-          <div className="text-3xl font-bold mt-2 text-slate-100">
-            {ready?.database_connected ? (
-              <span className="text-emerald-400">Connected</span>
-            ) : (
-              <span className="text-amber-400">Standby / Unreachable</span>
-            )}
-          </div>
-          <p className="text-xs text-slate-500 mt-2 font-mono">Extension: vector & pg_trgm</p>
-        </div>
-
-        <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-xl">
-          <div className="text-xs uppercase tracking-wider font-semibold text-slate-400">MCP Server Foundation</div>
-          <div className="text-3xl font-bold mt-2 text-emerald-400">Ready</div>
-          <p className="text-xs text-slate-500 mt-2 font-mono">SDK Constraint: mcp &gt;= 1.27, &lt; 2</p>
-        </div>
+        <ReviewQueue />
       </main>
     </div>
   );

@@ -16,6 +16,7 @@ from simpson_domain.models import ConnectionCheckRequest, SystemStatusResult
 from simpson_engineering import ConnectionService, CorrosionService, FastenerService
 from simpson_persistence import check_db_health
 from simpson_provenance import BoundingBox, Citation, SourceClaim
+from simpson_retrieval import PostgresHybridRetrievalService, RetrievalQuery
 from simpson_testing import create_synthetic_product
 
 settings = get_settings()
@@ -27,6 +28,7 @@ mcp_server = FastMCP("Simpson Strong-Tie Expert MCP")
 connection_service = ConnectionService()
 fastener_service = FastenerService()
 corrosion_service = CorrosionService()
+retrieval_service = PostgresHybridRetrievalService()
 
 
 # --- Diagnostic Resource & Tool ---
@@ -99,6 +101,22 @@ async def get_source_claim_resource(claim_id: str) -> str:
         source_hash="e8b0a9f5d1645e7f2257d00f723bd0ca9810a9a08ea15a9956461a6c42171c66",
     )
     return claim.model_dump_json(indent=2)
+
+
+# --- Retrieval Tools ---
+
+
+@mcp_server.tool()
+async def search_products(text_query: str, limit: int = 5) -> list[dict[str, Any]]:
+    """Execute hybrid reciprocal rank fusion search across product models, descriptions, and load tables.
+
+    Args:
+        text_query: Search query string (e.g. 'H1A', 'hurricane tie uplift', 'joist hanger double 2x8')
+        limit: Max number of results to return
+    """
+    q = RetrievalQuery(text_query=text_query, limit=limit)
+    results = await retrieval_service.search(q)
+    return [r.model_dump() for r in results]
 
 
 # --- Deterministic Engineering Tools ---
