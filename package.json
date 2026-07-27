@@ -1,0 +1,15 @@
+{
+  "name": "simpson-strong-tie-mcp-monorepo",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "npm run dev --workspace apps/admin-web",
+    "build": "npm run build --workspace apps/admin-web",
+    "lint": "npm run lint --workspace apps/admin-web",
+    "typecheck": "npm run typecheck --workspace apps/admin-web",
+    "test": "npm test --workspace apps/admin-web"
+  },
+  "workspaces": [
+    "apps/admin-web"
+  ]
+}

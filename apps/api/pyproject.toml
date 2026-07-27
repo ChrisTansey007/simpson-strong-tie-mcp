@@ -1,0 +1,20 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "simpson-api"
+version = "0.1.0"
+dependencies = [
+    "fastapi>=0.110.0",
+    "uvicorn[standard]>=0.28.0",
+    "simpson-common",
+    "simpson-domain",
+    "simpson-persistence",
+]
+
+[project.scripts]
+simpson-api = "simpson_api.main:run_server"
+
+[tool.hatch.build.targets.wheel]
+packages = ["simpson_api"]

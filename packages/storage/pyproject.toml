@@ -1,0 +1,14 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "simpson-storage"
+version = "0.1.0"
+dependencies = [
+    "pydantic>=2.6.0",
+    "simpson-common",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["simpson_storage"]

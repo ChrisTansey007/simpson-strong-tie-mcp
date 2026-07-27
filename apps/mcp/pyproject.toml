@@ -1,0 +1,21 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "simpson-mcp"
+version = "0.1.0"
+dependencies = [
+    "mcp>=1.27.0,<2.0.0",
+    "simpson-common",
+    "simpson-domain",
+    "simpson-persistence",
+    "simpson-provenance",
+    "simpson-engineering",
+]
+
+[project.scripts]
+simpson-mcp = "simpson_mcp.main:run_server"
+
+[tool.hatch.build.targets.wheel]
+packages = ["simpson_mcp"]

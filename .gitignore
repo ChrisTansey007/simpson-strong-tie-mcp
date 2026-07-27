@@ -1,0 +1,54 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Python Virtual Environments & uv
+.venv/
+venv/
+ENV/
+env/
+.uv/
+
+# Node & Frontend
+node_modules/
+dist/
+build/
+.output/
+.vite/
+
+# Database & Local Storage
+*.sqlite
+*.db
+.minio/
+data/storage/
+
+# Document Intake & Renditions (DO NOT COMMIT SOURCE PDFs)
+intake/*.pdf
+fixtures/documents/*.pdf
+!fixtures/documents/.gitkeep
+
+# Environment & Secrets
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+
+# IDEs & System Files
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Test & Coverage Outputs
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.pyright_cache/
+.ruff_cache/
+playwright-report/
+test-results/

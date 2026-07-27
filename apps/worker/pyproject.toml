@@ -1,0 +1,18 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "simpson-worker"
+version = "0.1.0"
+dependencies = [
+    "simpson-common",
+    "simpson-persistence",
+    "simpson-ingestion",
+]
+
+[project.scripts]
+simpson-worker = "simpson_worker.main:run_worker"
+
+[tool.hatch.build.targets.wheel]
+packages = ["simpson_worker"]

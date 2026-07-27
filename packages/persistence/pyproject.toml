@@ -1,0 +1,18 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "simpson-persistence"
+version = "0.1.0"
+dependencies = [
+    "sqlalchemy>=2.0.28",
+    "asyncpg>=0.29.0",
+    "alembic>=1.13.1",
+    "pgvector>=0.2.5",
+    "simpson-common",
+    "simpson-domain",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["simpson_persistence"]

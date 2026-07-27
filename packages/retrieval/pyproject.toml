@@ -1,0 +1,16 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "simpson-retrieval"
+version = "0.1.0"
+dependencies = [
+    "pydantic>=2.6.0",
+    "simpson-domain",
+    "simpson-persistence",
+    "simpson-provenance",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["simpson_retrieval"]

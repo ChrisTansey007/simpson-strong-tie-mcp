@@ -1,0 +1,14 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "simpson-provenance"
+version = "0.1.0"
+dependencies = [
+    "pydantic>=2.6.0",
+    "simpson-domain",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["simpson_provenance"]
