@@ -98,7 +98,7 @@ class ProductVariantORM(Base):
     model_number: Mapped[str] = mapped_column(String(100), index=True, nullable=False)
     gauge: Mapped[int | None] = mapped_column(Integer, nullable=True)
     coating: Mapped[CoatingType] = mapped_column(
-        Enum(CoatingType), default=CoatingType.STANDARD_GALVANIZED, nullable=False
+        Enum(CoatingType, native_enum=False), default=CoatingType.STANDARD_GALVANIZED, nullable=False
     )
     dimensions_in: Mapped[str | None] = mapped_column(String(100), nullable=True)
 
@@ -152,7 +152,7 @@ class SourceClaimORM(Base):
         String(100), ForeignKey("citations.id"), nullable=False
     )
     verification_status: Mapped[VerificationStatus] = mapped_column(
-        Enum(VerificationStatus), default=VerificationStatus.HUMAN_VERIFIED, nullable=False
+        Enum(VerificationStatus, native_enum=False), default=VerificationStatus.HUMAN_VERIFIED, nullable=False
     )
     source_hash: Mapped[str] = mapped_column(String(64), nullable=False)
 
@@ -166,10 +166,10 @@ class PublishedCapacityORM(Base):
     product_variant_id: Mapped[str] = mapped_column(
         String(100), ForeignKey("product_variants.id"), nullable=False
     )
-    design_method: Mapped[DesignMethod] = mapped_column(Enum(DesignMethod), nullable=False)
-    load_direction: Mapped[LoadDirection] = mapped_column(Enum(LoadDirection), nullable=False)
+    design_method: Mapped[DesignMethod] = mapped_column(Enum(DesignMethod, native_enum=False), nullable=False)
+    load_direction: Mapped[LoadDirection] = mapped_column(Enum(LoadDirection, native_enum=False), nullable=False)
     wood_species_group: Mapped[WoodSpeciesGroup] = mapped_column(
-        Enum(WoodSpeciesGroup), nullable=False
+        Enum(WoodSpeciesGroup, native_enum=False), nullable=False
     )
     capacity_lbf: Mapped[Decimal] = mapped_column(Numeric(12, 2), nullable=False)
     fastener_schedule_text: Mapped[str] = mapped_column(Text, nullable=False)
