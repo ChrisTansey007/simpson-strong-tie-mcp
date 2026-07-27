@@ -6,6 +6,7 @@ from simpson_common.logging import get_logger
 from simpson_common.settings import get_settings
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.pool import NullPool
 
 logger = get_logger(__name__)
 
@@ -14,9 +15,7 @@ settings = get_settings()
 engine = create_async_engine(
     settings.database_url,
     echo=settings.debug,
-    pool_pre_ping=True,
-    pool_size=10,
-    max_overflow=20,
+    poolclass=NullPool,
 )
 
 async_session_factory = async_sessionmaker(

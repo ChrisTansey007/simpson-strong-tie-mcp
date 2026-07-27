@@ -1,6 +1,7 @@
 """Inspect PostgreSQL database tables and population status."""
 
 import asyncio
+
 from simpson_persistence import check_db_health
 from simpson_persistence.db import async_session_factory
 from simpson_persistence.models import (
@@ -25,8 +26,12 @@ async def check_db_population():
 
     if not health:
         print("\n[NOTE] PostgreSQL database container is currently offline or uninitialized.")
-        print("  - The MCP server currently uses high-fidelity synthetic fallbacks for all calculations.")
-        print("  - Run `docker compose up -d postgres` and `uv run alembic upgrade head` to start PostgreSQL.")
+        print(
+            "  - The MCP server currently uses high-fidelity synthetic fallbacks for all calculations."
+        )
+        print(
+            "  - Run `docker compose up -d postgres` and `uv run alembic upgrade head` to start PostgreSQL."
+        )
         return
 
     async with async_session_factory() as session:
@@ -38,7 +43,7 @@ async def check_db_population():
         cite_cnt = (await session.execute(select(func.count(CitationORM.id)))).scalar()
         job_cnt = (await session.execute(select(func.count(LeasedJobORM.id)))).scalar()
 
-        print(f"2. Database Table Row Counts:")
+        print("2. Database Table Row Counts:")
         print(f"  - `products`: {p_cnt} rows")
         print(f"  - `product_variants`: {v_cnt} rows")
         print(f"  - `product_aliases`: {a_cnt} rows")

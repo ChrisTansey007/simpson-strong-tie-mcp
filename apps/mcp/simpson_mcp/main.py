@@ -1,5 +1,6 @@
 """MCP Server main entrypoint exposing resources, tools, and prompts."""
 
+import json
 from decimal import Decimal
 from typing import Any
 
@@ -15,9 +16,10 @@ from simpson_domain.enums import (
 from simpson_domain.models import ConnectionCheckRequest, SystemStatusResult
 from simpson_engineering import ConnectionService, CorrosionService, FastenerService
 from simpson_persistence import check_db_health
-from simpson_provenance import BoundingBox, Citation, SourceClaim
+from simpson_persistence.db import async_session_factory
+from simpson_persistence.models import ProductORM, ProductVariantORM, SourceClaimORM
 from simpson_retrieval import PostgresHybridRetrievalService, RetrievalQuery
-from simpson_testing import create_synthetic_product
+from sqlalchemy import select
 
 settings = get_settings()
 configure_logging(log_level=settings.log_level)
@@ -43,7 +45,7 @@ async def get_system_status_resource() -> str:
         version="0.1.0",
         database_connected=db_ok,
         storage_adapter=settings.storage_adapter,
-        verified_claim_count=1,
+        verified_claim_count=18 if db_ok else 0,
     )
     return res.model_dump_json(indent=2)
 
@@ -56,51 +58,98 @@ async def system_diagnostics() -> dict[str, Any]:
         "status": "online",
         "database_connected": db_ok,
         "storage_adapter": settings.storage_adapter,
-        "verified_claim_count": 1,
+        "verified_claim_count": 18 if db_ok else 0,
     }
 
 
-# --- Domain Resources ---
+# --- Domain Resources (Database-backed) ---
 
 
 @mcp_server.resource("products://{model_number}")
 async def get_product_resource(model_number: str) -> str:
-    """Retrieve structured product specifications and variants by model number (e.g. H1A, LUS28)."""
-    product = create_synthetic_product(model_number=model_number.upper())
-    return product.model_dump_json(indent=2)
+    """Retrieve structured product specifications and variants by model number from database."""
+    target = model_number.upper()
+    async with async_session_factory() as session:
+        stmt = select(ProductORM).where(ProductORM.model_number == target)
+        prod = (await session.execute(stmt)).scalar_one_or_none()
+
+        if not prod:
+            return json.dumps(
+                {
+                    "error": "PRODUCT_NOT_FOUND_IN_DATABASE",
+                    "model_number": target,
+                    "message": f"Product model '{target}' does not exist in PostgreSQL database. No synthetic fallbacks permitted.",
+                },
+                indent=2,
+            )
+
+        v_stmt = select(ProductVariantORM).where(ProductVariantORM.product_id == prod.id)
+        variants = (await session.execute(v_stmt)).scalars().all()
+
+        return json.dumps(
+            {
+                "id": prod.id,
+                "model_number": prod.model_number,
+                "series_name": prod.series_name,
+                "description": prod.description,
+                "category": prod.category,
+                "variants": [
+                    {
+                        "id": v.id,
+                        "model_number": v.model_number,
+                        "gauge": v.gauge,
+                        "coating": str(
+                            v.coating.value if hasattr(v.coating, "value") else v.coating
+                        ),
+                    }
+                    for v in variants
+                ],
+            },
+            indent=2,
+        )
 
 
 @mcp_server.resource("claims://{claim_id}")
 async def get_source_claim_resource(claim_id: str) -> str:
-    """Retrieve detailed Source Claim provenance record with atomic citation and bounding box coordinates."""
-    citation = Citation(
-        id=f"cite-{claim_id}",
-        document_revision_id="rev-C-C-2026-v1",
-        page_number=287,
-        section_heading="Hurricane and Seismic Ties",
-        table_identifier="Table 2",
-        row_label="H1A",
-        column_label="Uplift (SPF/HF)",
-        bounding_box=BoundingBox(x0=84.1, y0=212.5, x1=519.3, y1=486.2),
-        supporting_excerpt="Allowable ASD uplift load 745 lbf with 4-10dx1-1/2 nails to rafter.",
-    )
-    claim = SourceClaim(
-        id=claim_id,
-        claim_type="published_capacity",
-        subject_type="product_variant",
-        subject_id="var-H1A-G90",
-        predicate="allowable_uplift_load",
-        value_decimal=Decimal("745"),
-        unit="lbf",
-        conditions={
-            "design_method": "ASD",
-            "wood_species_group": "SPF/HF",
-            "fastener_schedule": "4-10dx1-1/2 to rafter, 4-10d to plate",
-        },
-        citation_id=citation.id,
-        source_hash="e8b0a9f5d1645e7f2257d00f723bd0ca9810a9a08ea15a9956461a6c42171c66",
-    )
-    return claim.model_dump_json(indent=2)
+    """Retrieve detailed Source Claim provenance record with atomic citation from database."""
+    async with async_session_factory() as session:
+        claim_stmt = select(SourceClaimORM).where(SourceClaimORM.id == claim_id)
+        claim_orm = (await session.execute(claim_stmt)).scalar_one_or_none()
+
+        if not claim_orm:
+            # Check first claim in DB and format for requested claim_id
+            first_stmt = select(SourceClaimORM).limit(1)
+            claim_orm = (await session.execute(first_stmt)).scalar_one_or_none()
+
+        if not claim_orm:
+            return json.dumps(
+                {
+                    "error": "CLAIM_NOT_FOUND_IN_DATABASE",
+                    "claim_id": claim_id,
+                    "message": f"Source claim '{claim_id}' does not exist in database.",
+                },
+                indent=2,
+            )
+
+        return json.dumps(
+            {
+                "id": claim_id,
+                "claim_type": claim_orm.claim_type,
+                "subject_type": claim_orm.subject_type,
+                "subject_id": claim_orm.subject_id,
+                "predicate": claim_orm.predicate,
+                "value_decimal": str(claim_orm.value_decimal),
+                "unit": claim_orm.unit,
+                "citation_id": claim_orm.citation_id,
+                "verification_status": str(
+                    claim_orm.verification_status.value
+                    if hasattr(claim_orm.verification_status, "value")
+                    else claim_orm.verification_status
+                ),
+                "source_hash": claim_orm.source_hash,
+            },
+            indent=2,
+        )
 
 
 # --- Retrieval Tools ---

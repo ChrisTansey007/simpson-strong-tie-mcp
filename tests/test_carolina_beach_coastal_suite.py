@@ -174,7 +174,7 @@ async def test_mcp_tool_select_connector_valid():
         environment="DRY_INTERIOR",
     )
     assert res["is_compliant"] is True
-    assert res["allowable_capacity_lbf"] == "745"
+    assert Decimal(str(res["allowable_capacity_lbf"])) == Decimal("745")
 
 
 @pytest.mark.asyncio

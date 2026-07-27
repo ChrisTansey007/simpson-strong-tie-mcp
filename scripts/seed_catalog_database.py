@@ -2,6 +2,7 @@
 
 import asyncio
 from decimal import Decimal
+
 from simpson_domain.enums import (
     CoatingType,
     DesignMethod,
@@ -9,7 +10,6 @@ from simpson_domain.enums import (
     VerificationStatus,
     WoodSpeciesGroup,
 )
-from simpson_persistence import check_db_health
 from simpson_persistence.db import async_session_factory
 from simpson_persistence.models import (
     CitationORM,
@@ -103,8 +103,28 @@ async def seed_database():
                 "description": "Rafter to double top-plate hurricane tie providing high uplift resistance.",
                 "category": "Hurricane Ties",
                 "variants": [
-                    {"id": "var-H1A-G90", "model_number": "H1A", "gauge": 18, "coating": CoatingType.STANDARD_GALVANIZED, "uplift": Decimal("745"), "download": Decimal("1250"), "lateral": Decimal("435"), "sched": "4-10dx1-1/2 rafter, 4-10d plate", "cite": cite_h.id},
-                    {"id": "var-H1A-SS", "model_number": "H1A-SS", "gauge": 18, "coating": CoatingType.STAINLESS_316, "uplift": Decimal("745"), "download": Decimal("1250"), "lateral": Decimal("435"), "sched": "4-10dx1-1/2 SS rafter, 4-10d SS plate", "cite": cite_h.id},
+                    {
+                        "id": "var-H1A-G90",
+                        "model_number": "H1A",
+                        "gauge": 18,
+                        "coating": CoatingType.STANDARD_GALVANIZED,
+                        "uplift": Decimal("745"),
+                        "download": Decimal("1250"),
+                        "lateral": Decimal("435"),
+                        "sched": "4-10dx1-1/2 rafter, 4-10d plate",
+                        "cite": cite_h.id,
+                    },
+                    {
+                        "id": "var-H1A-SS",
+                        "model_number": "H1A-SS",
+                        "gauge": 18,
+                        "coating": CoatingType.STAINLESS_316,
+                        "uplift": Decimal("745"),
+                        "download": Decimal("1250"),
+                        "lateral": Decimal("435"),
+                        "sched": "4-10dx1-1/2 SS rafter, 4-10d SS plate",
+                        "cite": cite_h.id,
+                    },
                 ],
                 "aliases": ["H1A", "H1A-SS", "H1A-ZMAX"],
             },
@@ -115,9 +135,39 @@ async def seed_database():
                 "description": "General purpose hurricane tie for 2x framing connections.",
                 "category": "Hurricane Ties",
                 "variants": [
-                    {"id": "var-H2.5A-G90", "model_number": "H2.5A", "gauge": 18, "coating": CoatingType.STANDARD_GALVANIZED, "uplift": Decimal("565"), "download": Decimal("980"), "lateral": Decimal("390"), "sched": "5-8d rafter, 5-8d plate", "cite": cite_h.id},
-                    {"id": "var-H2.5A-Z", "model_number": "H2.5AZ", "gauge": 18, "coating": CoatingType.ZMAX, "uplift": Decimal("565"), "download": Decimal("980"), "lateral": Decimal("390"), "sched": "5-8d HDG rafter, 5-8d HDG plate", "cite": cite_h.id},
-                    {"id": "var-H2.5A-SS", "model_number": "H2.5A-SS", "gauge": 18, "coating": CoatingType.STAINLESS_316, "uplift": Decimal("565"), "download": Decimal("980"), "lateral": Decimal("390"), "sched": "5-8d SS rafter, 5-8d SS plate", "cite": cite_h.id},
+                    {
+                        "id": "var-H2.5A-G90",
+                        "model_number": "H2.5A",
+                        "gauge": 18,
+                        "coating": CoatingType.STANDARD_GALVANIZED,
+                        "uplift": Decimal("565"),
+                        "download": Decimal("980"),
+                        "lateral": Decimal("390"),
+                        "sched": "5-8d rafter, 5-8d plate",
+                        "cite": cite_h.id,
+                    },
+                    {
+                        "id": "var-H2.5A-Z",
+                        "model_number": "H2.5AZ",
+                        "gauge": 18,
+                        "coating": CoatingType.ZMAX,
+                        "uplift": Decimal("565"),
+                        "download": Decimal("980"),
+                        "lateral": Decimal("390"),
+                        "sched": "5-8d HDG rafter, 5-8d HDG plate",
+                        "cite": cite_h.id,
+                    },
+                    {
+                        "id": "var-H2.5A-SS",
+                        "model_number": "H2.5A-SS",
+                        "gauge": 18,
+                        "coating": CoatingType.STAINLESS_316,
+                        "uplift": Decimal("565"),
+                        "download": Decimal("980"),
+                        "lateral": Decimal("390"),
+                        "sched": "5-8d SS rafter, 5-8d SS plate",
+                        "cite": cite_h.id,
+                    },
                 ],
                 "aliases": ["H2.5A", "H2.5AZ", "H2.5A-SS"],
             },
@@ -128,8 +178,28 @@ async def seed_database():
                 "description": "High-capacity rafter/truss tie-down for severe wind exposure.",
                 "category": "Hurricane Ties",
                 "variants": [
-                    {"id": "var-H10A-G90", "model_number": "H10A", "gauge": 18, "coating": CoatingType.STANDARD_GALVANIZED, "uplift": Decimal("1340"), "download": Decimal("1650"), "lateral": Decimal("520"), "sched": "9-10d rafter, 9-10d plate", "cite": cite_h.id},
-                    {"id": "var-H10A-SS", "model_number": "H10A-SS", "gauge": 18, "coating": CoatingType.STAINLESS_316, "uplift": Decimal("1340"), "download": Decimal("1650"), "lateral": Decimal("520"), "sched": "9-10d SS rafter, 9-10d SS plate", "cite": cite_h.id},
+                    {
+                        "id": "var-H10A-G90",
+                        "model_number": "H10A",
+                        "gauge": 18,
+                        "coating": CoatingType.STANDARD_GALVANIZED,
+                        "uplift": Decimal("1340"),
+                        "download": Decimal("1650"),
+                        "lateral": Decimal("520"),
+                        "sched": "9-10d rafter, 9-10d plate",
+                        "cite": cite_h.id,
+                    },
+                    {
+                        "id": "var-H10A-SS",
+                        "model_number": "H10A-SS",
+                        "gauge": 18,
+                        "coating": CoatingType.STAINLESS_316,
+                        "uplift": Decimal("1340"),
+                        "download": Decimal("1650"),
+                        "lateral": Decimal("520"),
+                        "sched": "9-10d SS rafter, 9-10d SS plate",
+                        "cite": cite_h.id,
+                    },
                 ],
                 "aliases": ["H10A", "H10A-SS"],
             },
@@ -141,9 +211,39 @@ async def seed_database():
                 "description": "Double-shear face-mount joist hanger for 2x8 and 2x10 lumber.",
                 "category": "Joist Hangers",
                 "variants": [
-                    {"id": "var-LUS28-G90", "model_number": "LUS28", "gauge": 18, "coating": CoatingType.STANDARD_GALVANIZED, "uplift": Decimal("350"), "download": Decimal("1200"), "lateral": Decimal("250"), "sched": "6-10d header, 4-10d joist", "cite": cite_lus.id},
-                    {"id": "var-LUS28-Z", "model_number": "LUS28Z", "gauge": 18, "coating": CoatingType.ZMAX, "uplift": Decimal("350"), "download": Decimal("1200"), "lateral": Decimal("250"), "sched": "6-10d HDG header, 4-10d HDG joist", "cite": cite_lus.id},
-                    {"id": "var-LUS28-SS", "model_number": "LUS28-SS", "gauge": 18, "coating": CoatingType.STAINLESS_316, "uplift": Decimal("350"), "download": Decimal("1200"), "lateral": Decimal("250"), "sched": "6-10d SS header, 4-10d SS joist", "cite": cite_lus.id},
+                    {
+                        "id": "var-LUS28-G90",
+                        "model_number": "LUS28",
+                        "gauge": 18,
+                        "coating": CoatingType.STANDARD_GALVANIZED,
+                        "uplift": Decimal("350"),
+                        "download": Decimal("1200"),
+                        "lateral": Decimal("250"),
+                        "sched": "6-10d header, 4-10d joist",
+                        "cite": cite_lus.id,
+                    },
+                    {
+                        "id": "var-LUS28-Z",
+                        "model_number": "LUS28Z",
+                        "gauge": 18,
+                        "coating": CoatingType.ZMAX,
+                        "uplift": Decimal("350"),
+                        "download": Decimal("1200"),
+                        "lateral": Decimal("250"),
+                        "sched": "6-10d HDG header, 4-10d HDG joist",
+                        "cite": cite_lus.id,
+                    },
+                    {
+                        "id": "var-LUS28-SS",
+                        "model_number": "LUS28-SS",
+                        "gauge": 18,
+                        "coating": CoatingType.STAINLESS_316,
+                        "uplift": Decimal("350"),
+                        "download": Decimal("1200"),
+                        "lateral": Decimal("250"),
+                        "sched": "6-10d SS header, 4-10d SS joist",
+                        "cite": cite_lus.id,
+                    },
                 ],
                 "aliases": ["LUS28", "LUS28Z", "LUS28-SS"],
             },
@@ -154,8 +254,28 @@ async def seed_database():
                 "description": "Double-shear face-mount joist hanger for 2x6 framing.",
                 "category": "Joist Hangers",
                 "variants": [
-                    {"id": "var-LUS26-G90", "model_number": "LUS26", "gauge": 18, "coating": CoatingType.STANDARD_GALVANIZED, "uplift": Decimal("310"), "download": Decimal("950"), "lateral": Decimal("220"), "sched": "4-10d header, 4-10d joist", "cite": cite_lus.id},
-                    {"id": "var-LUS26-Z", "model_number": "LUS26Z", "gauge": 18, "coating": CoatingType.ZMAX, "uplift": Decimal("310"), "download": Decimal("950"), "lateral": Decimal("220"), "sched": "4-10d HDG header, 4-10d HDG joist", "cite": cite_lus.id},
+                    {
+                        "id": "var-LUS26-G90",
+                        "model_number": "LUS26",
+                        "gauge": 18,
+                        "coating": CoatingType.STANDARD_GALVANIZED,
+                        "uplift": Decimal("310"),
+                        "download": Decimal("950"),
+                        "lateral": Decimal("220"),
+                        "sched": "4-10d header, 4-10d joist",
+                        "cite": cite_lus.id,
+                    },
+                    {
+                        "id": "var-LUS26-Z",
+                        "model_number": "LUS26Z",
+                        "gauge": 18,
+                        "coating": CoatingType.ZMAX,
+                        "uplift": Decimal("310"),
+                        "download": Decimal("950"),
+                        "lateral": Decimal("220"),
+                        "sched": "4-10d HDG header, 4-10d HDG joist",
+                        "cite": cite_lus.id,
+                    },
                 ],
                 "aliases": ["LUS26", "LUS26Z"],
             },
@@ -167,8 +287,28 @@ async def seed_database():
                 "description": "Light tension strap for wall-to-wall and floor-to-floor tie-downs.",
                 "category": "Tension Straps",
                 "variants": [
-                    {"id": "var-LSTA24-G90", "model_number": "LSTA24", "gauge": 20, "coating": CoatingType.STANDARD_GALVANIZED, "uplift": Decimal("950"), "download": Decimal("0"), "lateral": Decimal("0"), "sched": "14-10d common nails", "cite": cite_strap.id},
-                    {"id": "var-LSTA24-SS", "model_number": "LSTA24-SS", "gauge": 20, "coating": CoatingType.STAINLESS_316, "uplift": Decimal("950"), "download": Decimal("0"), "lateral": Decimal("0"), "sched": "14-10d SS nails", "cite": cite_strap.id},
+                    {
+                        "id": "var-LSTA24-G90",
+                        "model_number": "LSTA24",
+                        "gauge": 20,
+                        "coating": CoatingType.STANDARD_GALVANIZED,
+                        "uplift": Decimal("950"),
+                        "download": Decimal("0"),
+                        "lateral": Decimal("0"),
+                        "sched": "14-10d common nails",
+                        "cite": cite_strap.id,
+                    },
+                    {
+                        "id": "var-LSTA24-SS",
+                        "model_number": "LSTA24-SS",
+                        "gauge": 20,
+                        "coating": CoatingType.STAINLESS_316,
+                        "uplift": Decimal("950"),
+                        "download": Decimal("0"),
+                        "lateral": Decimal("0"),
+                        "sched": "14-10d SS nails",
+                        "cite": cite_strap.id,
+                    },
                 ],
                 "aliases": ["LSTA24", "LSTA24-SS"],
             },
@@ -179,8 +319,28 @@ async def seed_database():
                 "description": "Heavy tension holdown for shearwall posts and wall-to-foundation anchoring.",
                 "category": "Holdowns",
                 "variants": [
-                    {"id": "var-HTT4-HDG", "model_number": "HTT4", "gauge": 11, "coating": CoatingType.HDG, "uplift": Decimal("3450"), "download": Decimal("0"), "lateral": Decimal("0"), "sched": "18-SD9x1-1/2 screws + 5/8 anchor bolt", "cite": cite_holdown.id},
-                    {"id": "var-HTT4-SS", "model_number": "HTT4-SS", "gauge": 11, "coating": CoatingType.STAINLESS_316, "uplift": Decimal("3450"), "download": Decimal("0"), "lateral": Decimal("0"), "sched": "18-SD9x1-1/2 SS screws + 5/8 SS anchor bolt", "cite": cite_holdown.id},
+                    {
+                        "id": "var-HTT4-HDG",
+                        "model_number": "HTT4",
+                        "gauge": 11,
+                        "coating": CoatingType.HDG,
+                        "uplift": Decimal("3450"),
+                        "download": Decimal("0"),
+                        "lateral": Decimal("0"),
+                        "sched": "18-SD9x1-1/2 screws + 5/8 anchor bolt",
+                        "cite": cite_holdown.id,
+                    },
+                    {
+                        "id": "var-HTT4-SS",
+                        "model_number": "HTT4-SS",
+                        "gauge": 11,
+                        "coating": CoatingType.STAINLESS_316,
+                        "uplift": Decimal("3450"),
+                        "download": Decimal("0"),
+                        "lateral": Decimal("0"),
+                        "sched": "18-SD9x1-1/2 SS screws + 5/8 SS anchor bolt",
+                        "cite": cite_holdown.id,
+                    },
                 ],
                 "aliases": ["HTT4", "HTT4-SS"],
             },
@@ -192,8 +352,28 @@ async def seed_database():
                 "description": "Standoff post base for 4x4 posts anchored into concrete footings.",
                 "category": "Post Bases",
                 "variants": [
-                    {"id": "var-PBS44-HDG", "model_number": "PBS44", "gauge": 12, "coating": CoatingType.HDG, "uplift": Decimal("1100"), "download": Decimal("4800"), "lateral": Decimal("650"), "sched": "8-10d HDG nails + 5/8 anchor bolt", "cite": cite_post.id},
-                    {"id": "var-PBS44-SS", "model_number": "PBS44-SS", "gauge": 12, "coating": CoatingType.STAINLESS_316, "uplift": Decimal("1100"), "download": Decimal("4800"), "lateral": Decimal("650"), "sched": "8-10d SS nails + 5/8 SS anchor bolt", "cite": cite_post.id},
+                    {
+                        "id": "var-PBS44-HDG",
+                        "model_number": "PBS44",
+                        "gauge": 12,
+                        "coating": CoatingType.HDG,
+                        "uplift": Decimal("1100"),
+                        "download": Decimal("4800"),
+                        "lateral": Decimal("650"),
+                        "sched": "8-10d HDG nails + 5/8 anchor bolt",
+                        "cite": cite_post.id,
+                    },
+                    {
+                        "id": "var-PBS44-SS",
+                        "model_number": "PBS44-SS",
+                        "gauge": 12,
+                        "coating": CoatingType.STAINLESS_316,
+                        "uplift": Decimal("1100"),
+                        "download": Decimal("4800"),
+                        "lateral": Decimal("650"),
+                        "sched": "8-10d SS nails + 5/8 SS anchor bolt",
+                        "cite": cite_post.id,
+                    },
                 ],
                 "aliases": ["PBS44", "PBS44-SS"],
             },
@@ -266,6 +446,22 @@ async def seed_database():
                     )
                     total_capacities += 1
 
+                # Add Lateral Capacity
+                if v_data.get("lateral", Decimal("0")) > 0:
+                    session.add(
+                        PublishedCapacityORM(
+                            id=f"cap-lat-{v_data['id']}",
+                            product_variant_id=v_orm.id,
+                            design_method=DesignMethod.ASD,
+                            wood_species_group=WoodSpeciesGroup.DF_SP,
+                            load_direction=LoadDirection.LATERAL_F1,
+                            capacity_lbf=v_data["lateral"],
+                            fastener_schedule_text=v_data["sched"],
+                            citation_id=v_data["cite"],
+                        )
+                    )
+                    total_capacities += 1
+
                 # Add Source Claim Provenance Record
                 session.add(
                     SourceClaimORM(
@@ -287,7 +483,7 @@ async def seed_database():
         print(f"[OK] Seeded {total_products} Products.")
         print(f"[OK] Seeded {total_variants} Product Variants.")
         print(f"[OK] Seeded {total_capacities} Published Load Capacities.")
-        print(f"[OK] Seeded Provenance Source Claims & Product Model Aliases.")
+        print("[OK] Seeded Provenance Source Claims & Product Model Aliases.")
         print("\n======================================================================")
         print(" SIMPSON STRONG-TIE POSTGRESQL DATABASE IS NOW 100% POPULATED!")
         print("======================================================================")

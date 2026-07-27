@@ -70,3 +70,11 @@ packages/domain -> standard library and Pydantic-compatible value types ONLY
 
 - **State Persistence**: New agent sessions derive memory solely from repository files (`docs/BUILD_PLAN.md`, codebase, tests), not prior context.
 - **Subagent Usage**: Use parallel subagents ONLY for independent, decoupled modules with clear file ownership. Integrate and run verification on all subagent output before marking tasks complete.
+
+---
+
+## 6. Strict "No Synthetic Fallbacks" Mandate
+
+- **ABSOLUTELY NO SYNTHETIC OR HARDCODED MOCK FALLBACKS**: Never use synthetic fallbacks, hardcoded mock values, or dummy estimation data when database records or external data sources are missing or offline.
+- **FAIL FAST & REPORT TRUTH**: If data is missing from the database or a database query fails, immediately fail fast and return an explicit error stating that the record is missing or the database is offline (`MODEL_NOT_FOUND_IN_DATABASE` / `DATABASE_OFFLINE`).
+- **RATIONALE**: Fallbacks disguise false information as real engineering truth and lead to catastrophic real-world failure. If data is not present in PostgreSQL knowledge banks, the system must clearly report that it was not found.
