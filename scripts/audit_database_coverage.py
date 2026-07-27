@@ -1,17 +1,17 @@
 """Detailed Database Coverage Audit script for Simpson Strong-Tie Knowledge Bank."""
 
 import asyncio
+
 from simpson_persistence.db import async_session_factory
 from simpson_persistence.models import (
     CitationORM,
-    LeasedJobORM,
     ProductAliasORM,
     ProductORM,
     ProductVariantORM,
     PublishedCapacityORM,
     SourceClaimORM,
 )
-from sqlalchemy import func, select
+from sqlalchemy import select
 
 
 async def audit_coverage():
@@ -41,7 +41,7 @@ async def audit_coverage():
         print(f"\n--- 2. PRODUCT VARIANTS ({len(variants)} finish/gauge variations) ---")
         var_by_coating = {}
         for v in variants:
-            c_val = v.coating.value if hasattr(v.coating, 'value') else str(v.coating)
+            c_val = v.coating.value if hasattr(v.coating, "value") else str(v.coating)
             var_by_coating.setdefault(c_val, []).append(v.model_number)
 
         for coating, models in var_by_coating.items():
@@ -51,10 +51,16 @@ async def audit_coverage():
         caps_res = await session.execute(select(PublishedCapacityORM))
         capacities = caps_res.scalars().all()
 
-        print(f"\n--- 3. PUBLISHED LOAD CAPACITIES ({len(capacities)} directional load records) ---")
+        print(
+            f"\n--- 3. PUBLISHED LOAD CAPACITIES ({len(capacities)} directional load records) ---"
+        )
         cap_by_dir = {}
         for c in capacities:
-            d_val = c.load_direction.value if hasattr(c.load_direction, 'value') else str(c.load_direction)
+            d_val = (
+                c.load_direction.value
+                if hasattr(c.load_direction, "value")
+                else str(c.load_direction)
+            )
             cap_by_dir.setdefault(d_val, 0)
             cap_by_dir[d_val] += 1
 
@@ -67,13 +73,24 @@ async def audit_coverage():
 
         print(f"\n--- 4. CITATIONS & CATALOG PROVENANCE ({len(citations)} table locations) ---")
         for cite in citations:
-            print(f"  - [{cite.id}] Rev: {cite.document_revision_id} | Page {cite.page_number} | {cite.table_identifier} | {cite.row_label} -> {cite.column_label}")
+            print(
+                f"  - [{cite.id}] Rev: {cite.document_revision_id} | Page {cite.page_number} | {cite.table_identifier} | {cite.row_label} -> {cite.column_label}"
+            )
 
         # 5. Provenance Claims
         claims_res = await session.execute(select(SourceClaimORM))
         claims = claims_res.scalars().all()
         print(f"\n--- 5. PROVENANCE SOURCE CLAIMS ({len(claims)} verified claims) ---")
-        verified_cnt = sum(1 for cl in claims if (cl.verification_status.value if hasattr(cl.verification_status, 'value') else str(cl.verification_status)) == "HUMAN_VERIFIED")
+        verified_cnt = sum(
+            1
+            for cl in claims
+            if (
+                cl.verification_status.value
+                if hasattr(cl.verification_status, "value")
+                else str(cl.verification_status)
+            )
+            == "HUMAN_VERIFIED"
+        )
         print(f"  - Human Verified Claims: {verified_cnt} / {len(claims)}")
 
         # 6. Model Aliases
