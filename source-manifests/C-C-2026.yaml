@@ -1,0 +1,12 @@
+schema_version: 1
+sources:
+  - source_key: C-C-2026
+    title: Wood Construction Connectors Catalog 2026
+    source_type: catalog
+    acquisition_mode: local_file
+    expected_filename: C-C-2026.pdf
+    publisher: Simpson Strong-Tie
+    jurisdiction: US
+    status_hint: current
+    replaces: C-C-2024
+    priority: critical
