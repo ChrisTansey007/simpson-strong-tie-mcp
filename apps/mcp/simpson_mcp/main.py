@@ -169,7 +169,7 @@ async def select_connector(
     )
 
     res = await connection_service.check_connection(req)
-    return res.model_dump()
+    return res.model_dump(mode="json")
 
 
 @mcp_server.tool()
