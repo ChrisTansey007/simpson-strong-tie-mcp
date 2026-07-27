@@ -60,3 +60,35 @@ def test_corrosion_suitability_rules():
         CoatingType.STANDARD_GALVANIZED, EnvironmentClassification.COASTAL_HIGH_CORROSION
     )
     assert ok_g90 is False
+
+
+@pytest.mark.asyncio
+async def test_connection_service_unity_ratio_compliant():
+    service = ConnectionService()
+    req = ConnectionCheckRequest(
+        model_number="H1A",
+        required_uplift_lbf=Decimal("372.5"),  # 0.5 ratio (372.5/745)
+        required_download_lbf=Decimal("312.5"),  # 0.25 ratio (312.5/1250)
+        required_lateral_lbf=Decimal("87"),  # 0.2 ratio (87/435)
+    )
+    result = await service.check_connection(req)
+    assert result.is_compliant is True
+    assert result.unity_ratio == Decimal("0.95")
+    assert len(result.warnings) == 0
+    assert "UNITY_RATIO_EXCEEDED" not in result.elimination_reasons
+
+
+@pytest.mark.asyncio
+async def test_connection_service_unity_ratio_exceeded():
+    service = ConnectionService()
+    req = ConnectionCheckRequest(
+        model_number="H1A",
+        required_uplift_lbf=Decimal("745"),  # 1.0 ratio
+        required_download_lbf=Decimal("125"),  # 0.1 ratio
+        required_lateral_lbf=Decimal("43.5"),  # 0.1 ratio
+    )
+    result = await service.check_connection(req)
+    assert result.is_compliant is False
+    assert result.unity_ratio == Decimal("1.2")
+    assert "Multi-vector load combination unity ratio" in result.warnings[0]
+    assert "UNITY_RATIO_EXCEEDED" in result.elimination_reasons

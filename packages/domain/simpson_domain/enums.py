@@ -20,6 +20,7 @@ class VerificationStatus(StrEnum):
     AUTO_PARSED_REVIEW_REQUIRED = "AUTO_PARSED_REVIEW_REQUIRED"
     HUMAN_VERIFIED = "HUMAN_VERIFIED"
     REJECTED = "REJECTED"
+    SUPERSEDED = "SUPERSEDED"
 
 
 class AnswerClassification(StrEnum):

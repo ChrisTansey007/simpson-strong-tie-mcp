@@ -44,5 +44,6 @@ class SourceClaim(BaseModel):
     unit: str | None = None
     conditions: dict[str, Any] = Field(default_factory=dict)
     citation_id: str
-    verification_status: VerificationStatus = VerificationStatus.HUMAN_VERIFIED
+    verification_status: VerificationStatus = VerificationStatus.AUTO_PARSED_REVIEW_REQUIRED
     source_hash: str
+    superseded_by: str | None = None

@@ -8,6 +8,7 @@ interface ReviewItem {
   unit: string;
   pageNumber: number;
   confidence: number;
+  boundingBox: [number, number, number, number];
   status: 'AUTO_PARSED_REVIEW_REQUIRED' | 'HUMAN_VERIFIED' | 'REJECTED';
 }
 
@@ -20,6 +21,7 @@ const INITIAL_QUEUE: ReviewItem[] = [
     unit: 'lbf',
     pageNumber: 287,
     confidence: 0.94,
+    boundingBox: [120, 450, 300, 480],
     status: 'AUTO_PARSED_REVIEW_REQUIRED',
   },
   {
@@ -30,6 +32,7 @@ const INITIAL_QUEUE: ReviewItem[] = [
     unit: 'lbf',
     pageNumber: 142,
     confidence: 0.91,
+    boundingBox: [200, 320, 380, 360],
     status: 'AUTO_PARSED_REVIEW_REQUIRED',
   },
 ];
@@ -59,8 +62,8 @@ export default function ReviewQueue() {
 
       <div className="mt-4 divide-y divide-slate-800">
         {items.map((item) => (
-          <div key={item.id} className="py-4 flex items-center justify-between gap-4">
-            <div>
+          <div key={item.id} className="py-4 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+            <div className="flex-1">
               <div className="flex items-center gap-2">
                 <span className="font-bold text-amber-500">{item.modelNumber}</span>
                 <span className="text-xs text-slate-400">({item.claimType})</span>
@@ -74,25 +77,37 @@ export default function ReviewQueue() {
               </p>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex-1 w-full lg:w-auto">
+              <div className="bg-slate-800/50 rounded p-3 border border-slate-700">
+                <p className="text-xs text-slate-400 mb-2">Evidence Crop Bounding Box</p>
+                <div className="flex flex-wrap items-center gap-3 font-mono text-xs text-slate-300 bg-slate-900 rounded p-2 border border-slate-800">
+                  <span>x0: <span className="text-sky-400">{item.boundingBox[0]}</span></span>
+                  <span>y0: <span className="text-sky-400">{item.boundingBox[1]}</span></span>
+                  <span>x1: <span className="text-sky-400">{item.boundingBox[2]}</span></span>
+                  <span>y1: <span className="text-sky-400">{item.boundingBox[3]}</span></span>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 w-full lg:w-auto justify-end">
               {item.status === 'AUTO_PARSED_REVIEW_REQUIRED' ? (
                 <>
                   <button
                     onClick={() => handleDecision(item.id, 'HUMAN_VERIFIED')}
-                    className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-medium rounded-lg transition"
+                    className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-medium rounded-lg transition whitespace-nowrap"
                   >
                     Approve Claim
                   </button>
                   <button
                     onClick={() => handleDecision(item.id, 'REJECTED')}
-                    className="px-3 py-1.5 bg-rose-600/20 border border-rose-500/30 text-rose-400 hover:bg-rose-600/30 text-xs font-medium rounded-lg transition"
+                    className="px-3 py-1.5 bg-rose-600/20 border border-rose-500/30 text-rose-400 hover:bg-rose-600/30 text-xs font-medium rounded-lg transition whitespace-nowrap"
                   >
                     Reject
                   </button>
                 </>
               ) : (
                 <span
-                  className={`text-xs font-semibold uppercase px-2.5 py-1 rounded ${
+                  className={`text-xs font-semibold uppercase px-2.5 py-1 rounded whitespace-nowrap ${
                     item.status === 'HUMAN_VERIFIED'
                       ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
                       : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'

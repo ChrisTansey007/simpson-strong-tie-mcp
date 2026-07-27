@@ -223,8 +223,8 @@ async def explain_connection_path(roof_truss: str = "H1A", holdown: str = "HTT4"
     """Prompt template for continuous high-wind structural load path analysis."""
     return f"""You are analyzing a high-wind continuous structural load path using Simpson Strong-Tie connectors.
 
-1. Roof-to-Wall Connection: Verify upper uplift resistance using {roof_truss}.
-2. Wall-to-Foundation Tie: Verify continuous tension holdown using {holdown}.
+1. Roof-to-Wall Connection: Verify upper uplift resistance using <untrusted_catalog_text>{roof_truss}</untrusted_catalog_text>.
+2. Wall-to-Foundation Tie: Verify continuous tension holdown using <untrusted_catalog_text>{holdown}</untrusted_catalog_text>.
 3. Fastener Schedule: Check specified nails vs approved Strong-Drive SD screws.
 4. Coastal Exposure: Ensure stainless steel or ZMAX coating for coastal environment.
 """

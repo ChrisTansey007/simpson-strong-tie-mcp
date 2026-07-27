@@ -6,6 +6,7 @@ from typing import Any
 from pydantic import BaseModel
 from simpson_domain.enums import VerificationStatus
 from simpson_provenance.models import BoundingBox, Citation
+from sqlalchemy import text
 
 
 class RetrievalQuery(BaseModel):
@@ -16,6 +17,7 @@ class RetrievalQuery(BaseModel):
     category: str | None = None
     verification_status: VerificationStatus = VerificationStatus.HUMAN_VERIFIED
     limit: int = 10
+    embedding: list[float] | None = None
 
 
 class RetrievalResult(BaseModel):
@@ -44,42 +46,6 @@ class PostgresHybridRetrievalService(RetrievalService):
     def __init__(self, db_session: Any | None = None) -> None:
         self.db_session = db_session
 
-    def reciprocal_rank_fusion(
-        self,
-        lexical_results: list[RetrievalResult],
-        vector_results: list[RetrievalResult],
-        k: int = 60,
-    ) -> list[RetrievalResult]:
-        """Combine lexical and vector search results using Reciprocal Rank Fusion (RRF)."""
-        scores: dict[str, float] = {}
-        result_map: dict[str, RetrievalResult] = {}
-
-        for rank, res in enumerate(lexical_results, start=1):
-            scores[res.subject_id] = scores.get(res.subject_id, 0.0) + (1.0 / (k + rank))
-            result_map[res.subject_id] = res
-
-        for rank, res in enumerate(vector_results, start=1):
-            scores[res.subject_id] = scores.get(res.subject_id, 0.0) + (1.0 / (k + rank))
-            if res.subject_id not in result_map:
-                result_map[res.subject_id] = res
-
-        sorted_ids = sorted(scores.keys(), key=lambda sid: scores[sid], reverse=True)
-
-        fused: list[RetrievalResult] = []
-        for sid in sorted_ids:
-            item = result_map[sid]
-            fused.append(
-                RetrievalResult(
-                    score=round(scores[sid], 5),
-                    retrieval_method="HYBRID_RRF",
-                    subject_id=item.subject_id,
-                    title=item.title,
-                    content_excerpt=item.content_excerpt,
-                    citation=item.citation,
-                )
-            )
-        return fused
-
     async def search(self, query: RetrievalQuery) -> list[RetrievalResult]:
         """Execute hybrid search cascade."""
         clean_q = query.text_query.strip().upper()
@@ -96,51 +62,72 @@ class PostgresHybridRetrievalService(RetrievalService):
                 row_label=target_model,
                 column_label="Uplift (SPF/HF)",
                 bounding_box=BoundingBox(x0=84.1, y0=212.5, x1=519.3, y1=486.2),
-                supporting_excerpt=f"Exact match candidate for product model {target_model}.",
+                supporting_excerpt=f"<untrusted_catalog_text>Exact match candidate for product model {target_model}.</untrusted_catalog_text>",
             )
             exact_res = RetrievalResult(
                 score=1.0,
                 retrieval_method="EXACT",
                 subject_id=f"prod-{target_model}",
                 title=f"Simpson Strong-Tie {target_model} Hurricane Tie / Connector",
-                content_excerpt=f"Published connector data for model {target_model}.",
+                content_excerpt=f"<untrusted_catalog_text>Published connector data for model {target_model}.</untrusted_catalog_text>",
                 citation=synthetic_citation,
             )
             return [exact_res]
 
-        # 2. Lexical & Vector RRF fusion fallback
-        lexical_sample = [
-            RetrievalResult(
-                score=0.85,
-                retrieval_method="LEXICAL",
-                subject_id="prod-H1A",
-                title="Simpson Strong-Tie H1A Hurricane Tie",
-                content_excerpt="Allowable uplift 745 lbf with 4-10dx1-1/2 nails.",
-            ),
-            RetrievalResult(
-                score=0.72,
-                retrieval_method="LEXICAL",
-                subject_id="prod-H2.5A",
-                title="Simpson Strong-Tie H2.5A Hurricane Tie",
-                content_excerpt="Allowable uplift 565 lbf for 2x framing.",
-            ),
-        ]
+        # 2. Hybrid RRF search via PostgreSQL CTE or fallback
+        if not self.db_session:
+            return []
 
-        vector_sample = [
-            RetrievalResult(
-                score=0.88,
-                retrieval_method="VECTOR",
-                subject_id="prod-H1A",
-                title="Simpson Strong-Tie H1A Hurricane Tie",
-                content_excerpt="High-wind rafter to top-plate connection tie.",
-            ),
-            RetrievalResult(
-                score=0.65,
-                retrieval_method="VECTOR",
-                subject_id="prod-LUS28",
-                title="Simpson Strong-Tie LUS28 Joist Hanger",
-                content_excerpt="Double 2x8 joist hanger with speed prongs.",
-            ),
-        ]
+        sql_query = text("""
+        WITH lexical_search AS (
+            SELECT subject_id, title, content_excerpt,
+                   ROW_NUMBER() OVER (ORDER BY content_excerpt <-> :text_query) as rank
+            FROM document_chunks
+            ORDER BY content_excerpt <-> :text_query
+            LIMIT :limit
+        ),
+        vector_search AS (
+            SELECT subject_id, title, content_excerpt,
+                   ROW_NUMBER() OVER (ORDER BY embedding <=> :query_embedding::vector) as rank
+            FROM document_chunks
+            ORDER BY embedding <=> :query_embedding::vector
+            LIMIT :limit
+        )
+        SELECT
+            COALESCE(l.subject_id, v.subject_id) as subject_id,
+            COALESCE(l.title, v.title) as title,
+            COALESCE(l.content_excerpt, v.content_excerpt) as content_excerpt,
+            COALESCE(1.0 / (:k + l.rank), 0.0) + COALESCE(1.0 / (:k + v.rank), 0.0) as rrf_score
+        FROM lexical_search l
+        FULL OUTER JOIN vector_search v ON l.subject_id = v.subject_id
+        ORDER BY rrf_score DESC
+        LIMIT :limit;
+        """)
 
-        return self.reciprocal_rank_fusion(lexical_sample, vector_sample)[: query.limit]
+        embedding_str = str(query.embedding) if query.embedding else "[0.0]"
+        result = await self.db_session.execute(
+            sql_query,
+            {
+                "text_query": clean_q,
+                "query_embedding": embedding_str,
+                "limit": query.limit,
+                "k": 60,
+            },
+        )
+
+        fused: list[RetrievalResult] = []
+        for row in result:
+            excerpt = row.content_excerpt
+            if not excerpt.startswith("<untrusted_catalog_text>"):
+                excerpt = f"<untrusted_catalog_text>{excerpt}</untrusted_catalog_text>"
+            fused.append(
+                RetrievalResult(
+                    score=round(row.rrf_score, 5),
+                    retrieval_method="HYBRID_RRF",
+                    subject_id=row.subject_id,
+                    title=row.title,
+                    content_excerpt=excerpt,
+                    citation=None,
+                )
+            )
+        return fused

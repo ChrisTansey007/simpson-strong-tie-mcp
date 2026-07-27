@@ -77,6 +77,7 @@ class ConnectionCheckRequest(BaseModel):
     model_number: str
     required_uplift_lbf: Decimal | None = None
     required_download_lbf: Decimal | None = None
+    required_lateral_lbf: Decimal | None = None
     design_method: DesignMethod = DesignMethod.ASD
     wood_species_group: WoodSpeciesGroup = WoodSpeciesGroup.DF_SP
     environment: EnvironmentClassification = EnvironmentClassification.DRY_INTERIOR
@@ -91,6 +92,7 @@ class ConnectionCheckResult(BaseModel):
     model_number: str
     allowable_capacity_lbf: Decimal | None = None
     required_load_lbf: Decimal | None = None
+    unity_ratio: Decimal | None = None
     fastener_schedule: str | None = None
     citations: list[str] = Field(default_factory=list)
     warnings: list[str] = Field(default_factory=list)

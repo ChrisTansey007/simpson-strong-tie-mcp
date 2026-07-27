@@ -45,6 +45,30 @@ class SystemMetadataORM(Base):
     )
 
 
+class LeasedJobORM(Base):
+    """Ingestion job queue table for leased worker processing."""
+
+    __tablename__ = "leased_jobs"
+
+    id: Mapped[str] = mapped_column(String(100), primary_key=True)
+    job_type: Mapped[str] = mapped_column(String(100), nullable=False)
+    idempotency_key: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
+    payload_json: Mapped[dict[str, Any]] = mapped_column(JSON, nullable=False)
+    status: Mapped[str] = mapped_column(String(50), nullable=False, default="PENDING")
+    priority: Mapped[int] = mapped_column(Integer, nullable=False, default=10)
+    attempt_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    max_attempts: Mapped[int] = mapped_column(Integer, nullable=False, default=3)
+    available_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(UTC)
+    )
+    leased_until: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    leased_by: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    last_error: Mapped[str | None] = mapped_column(Text, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(UTC)
+    )
+
+
 class ProductORM(Base):
     """Core product line definition table."""
 
